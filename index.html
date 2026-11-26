@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#7b2e21" id="metaThemeColor" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="恋情的终结" />
+  <link rel="manifest" href="./manifest.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+  <title>恋情的终结 · Cornélie 专属全书背诵台</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <div class="sidebar-backdrop hidden" id="sidebarBackdrop"></div>
+
+    <!-- Left Sidebar / Mobile Drawer: Progress & 184-Day Schedule -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-card">
+        <img src="./cover.jpg" alt="The End of the Affair" class="book-cover" onerror="this.style.display='none'" />
+        <div class="brand-meta">
+          <div class="eyebrow">CORNÉLIE'S RECITATION STUDIO</div>
+          <h1>The End of the Affair</h1>
+          <p class="sub">Graham Greene (1951) · 恋情的终结</p>
+        </div>
+        <button class="icon-btn close-drawer-btn" id="closeDrawerBtn" title="收起目录">✕</button>
+      </div>
+
+      <div class="stats-panel">
+        <div class="stat-box">
+          <span class="stat-val" id="statDays">0 / 184</span>
+          <span class="stat-lbl">打卡天数</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-val" id="statWords">0</span>
+          <span class="stat-lbl">已背词 / 61,933</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-val" id="statStreak">0 天</span>
+          <span class="stat-lbl">熟背句 <b id="statSentences">0</b></span>
+        </div>
+        <div class="overall-bar-wrap">
+          <div class="overall-bar-fill" id="overallBar" style="width: 0%"></div>
+        </div>
+        <div class="schedule-dates">
+          <label>开背：
+            <input type="date" id="startDateInput" />
+          </label>
+          <span id="finishDateLabel">完结：--</span>
+        </div>
+      </div>
+
+      <div class="sidebar-controls">
+        <div class="book-tabs" id="bookTabs">
+          <button class="tab-btn active" data-book="all">全部</button>
+          <button class="tab-btn" data-book="1">I</button>
+          <button class="tab-btn" data-book="2">II</button>
+          <button class="tab-btn" data-book="3">III</button>
+          <button class="tab-btn" data-book="4">IV</button>
+          <button class="tab-btn" data-book="5">V</button>
+        </div>
+        <div class="sidebar-actions">
+          <button class="btn-ghost btn-sm" id="jumpCurrentBtn">🎯 定位今日进度</button>
+          <button class="btn-ghost btn-sm" id="pregenBtn">⚡ 缓存全书 (<span id="cachedCount">0/157</span>)</button>
+          <button class="btn-ghost btn-sm hidden" id="backupProgressBtn">📦 备份/同步进度</button>
+        </div>
+      </div>
+
+      <div class="day-list" id="dayList">
+        <!-- Populated by app.js -->
+      </div>
+    </aside>
+
+    <!-- Main Content Stage -->
+    <main class="main-stage">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn" id="toggleSidebarBtn" title="展开/收起 184 天目录">☰</button>
+          <div class="title-stack">
+            <div class="day-badge-row">
+              <span class="pill pill-accent" id="curDayBadge">Day 1</span>
+              <span class="pill" id="curBookBadge">Book One · Ch. 1</span>
+              <span class="pill pill-muted hide-xs" id="curDateBadge">--</span>
+              <span class="pill pill-muted" id="curWordBadge">438 词</span>
+            </div>
+            <h2 class="lesson-heading" id="lessonHeading">第一卷 · 雨夜重逢与侦探调查</h2>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button class="btn-install" id="installPwaBtn" title="添加到安卓手机桌面，生成专属应用图标">📲 安装桌面图标</button>
+          <div class="layout-switch" id="layoutSwitchWrap" title="切换段落沉浸排版或逐句精背卡片">
+            <button class="seg-btn active" data-layout="paragraph">📖 段落</button>
+            <button class="seg-btn" data-layout="sentences">📝 逐句</button>
+          </div>
+          <button class="icon-btn hide-mobile" id="shortcutsHelpBtn" title="快捷键说明">⌨️</button>
+          <button class="icon-btn" id="themeToggleBtn" title="切换日间/夜间模式">🌙</button>
+          <button class="btn-checkin" id="checkinBtn">✓ 打卡</button>
+        </div>
+      </header>
+
+      <!-- Recitation Mode Bar -->
+      <section class="mode-toolbar" id="modeToolbar">
+        <div class="mode-group">
+          <span class="toolbar-label hide-mobile">阶段：</span>
+          <button class="mode-btn active" data-mode="full">
+            <span class="key-hint hide-mobile">1</span> 原文精听
+          </button>
+          <button class="mode-btn" data-mode="cloze">
+            <span class="key-hint hide-mobile">2</span> 实词挖空
+          </button>
+          <button class="mode-btn" data-mode="first">
+            <span class="key-hint hide-mobile">3</span> 首字母
+          </button>
+          <button class="mode-btn" data-mode="blind">
+            <span class="key-hint hide-mobile">4</span> 全盲默背
+          </button>
+        </div>
+
+        <div class="filter-group">
+          <label class="toggle-chip" title="只显示标记为 ★ 的重点难句">
+            <input type="checkbox" id="onlyStarredToggle" />
+            <span>★ 难句(<b id="starredCountInLesson">0</b>)</span>
+          </label>
+          <button class="btn-ghost btn-sm" id="revealAllTempBtn">👁 全显影</button>
+        </div>
+      </section>
+
+      <!-- Ebbinghaus Review Banner -->
+      <div class="ebbinghaus-bar hidden" id="ebbinghausBar">
+        <span class="ebb-title">🧠 今日顺带复习：</span>
+        <div class="ebb-chips" id="ebbChips"></div>
+      </div>
+
+      <!-- Main Reading / Review Container -->
+      <div class="reading-scroll" id="readingScroll">
+        <div class="reading-canvas" id="readingCanvas">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Mobile One-Thumb Sentence Quick Bar -->
+      <div class="mobile-sent-bar" id="mobileSentBar">
+        <button class="m-act-btn" id="mRevealBtn">👁 显影本句</button>
+        <button class="m-act-btn" id="mLoopBtn">🔁 单句循环</button>
+        <button class="m-act-btn" id="mStarBtn">★ 标难句</button>
+        <button class="m-act-btn" id="mMasterBtn">✓ 已熟背</button>
+      </div>
+
+      <!-- Synchronized Audio Player Dock -->
+      <footer class="player-dock" id="playerDock">
+        <div class="scrubber-row">
+          <span class="time-lbl" id="curTimeLbl">00:00</span>
+          <div class="timeline-track" id="timelineTrack">
+            <div class="timeline-progress" id="timelineProgress" style="width: 0%"></div>
+            <div class="timeline-ticks" id="timelineTicks"></div>
+          </div>
+          <span class="time-lbl" id="durTimeLbl">00:00</span>
+        </div>
+
+        <div class="player-controls-row">
+          <div class="transport-left hide-mobile">
+            <span class="audio-status" id="audioStatus">准备就绪</span>
+          </div>
+
+          <div class="transport-center">
+            <button class="ctrl-btn" id="prevDayBtn" title="上一天">⏮</button>
+            <button class="ctrl-btn" id="prevSentBtn" title="上一句">◀ 上句</button>
+            <button class="play-btn" id="playPauseBtn" title="播放 / 暂停">▶ 播放</button>
+            <button class="ctrl-btn" id="nextSentBtn" title="下一句">下句 ▶</button>
+            <button class="ctrl-btn" id="nextDayBtn" title="下一天">⏭</button>
+          </div>
+
+          <div class="mobile-status-line show-mobile-only" id="mobileAudioStatus">🎧 美式同步就绪</div>
+
+          <div class="transport-right">
+            <label class="ctrl-select-wrap">
+              <span>循环</span>
+              <select id="repeatModeSelect">
+                <option value="seq">顺序连播</option>
+                <option value="one">单句循环</option>
+                <option value="rep2">每句2遍</option>
+                <option value="rep3">每句3遍</option>
+              </select>
+            </label>
+
+            <label class="ctrl-select-wrap">
+              <span>留白</span>
+              <select id="shadowPauseSelect">
+                <option value="0">无停顿</option>
+                <option value="2">停2秒</option>
+                <option value="1x">1.0x句长</option>
+                <option value="1.3x">1.3x句长</option>
+              </select>
+            </label>
+
+            <label class="ctrl-select-wrap">
+              <span>语速</span>
+              <select id="speedSelect">
+                <option value="0.75">0.75x</option>
+                <option value="0.88">0.88x</option>
+                <option value="1" selected>1.0x</option>
+                <option value="1.12">1.12x</option>
+                <option value="1.25">1.25x</option>
+              </select>
+            </label>
+
+            <label class="ctrl-select-wrap" id="voiceSelectWrap">
+              <span>美音</span>
+              <select id="voiceSelect"></select>
+            </label>
+
+            <a class="icon-btn download-link hide-mobile" id="downloadMp3Btn" href="#" download title="下载今日同步 MP3">⬇</a>
+          </div>
+        </div>
+      </footer>
+    </main>
+  </div>
+
+  <!-- Android Install Guide Modal -->
+  <div class="modal-backdrop hidden" id="installModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📲 添加到安卓手机桌面</h3>
+        <button class="icon-btn" id="closeInstallModalBtn">✕</button>
+      </div>
+      <div class="install-steps">
+        <div class="install-preview">
+          <img src="./icons/icon-192.png" alt="App Icon" style="width:64px;height:64px;border-radius:14px;" />
+          <div>
+            <strong>恋情的终结 · 背诵台</strong>
+            <p style="font-size:12px;color:var(--text-muted);margin-top:3px;">全屏沉浸无地址栏 · 支持锁屏与耳机切句</p>
+          </div>
+        </div>
+        <ol style="padding-left:18px;font-size:13.5px;line-height:1.8;color:var(--text-main);margin-top:12px;">
+          <li>在安卓手机上建议使用 <b>Chrome</b> 或 <b>Edge</b> 浏览器打开本网址。</li>
+          <li>点击浏览器右上角菜单 <b>「⋮」</b>（或底部菜单栏）。</li>
+          <li>点击 <b>「安装应用 (Install app)」</b> 或 <b>「添加到主屏幕」</b>。</li>
+          <li>回到手机桌面，就会看到这枚精装书封图标，点开即是独立全屏 App！</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress Backup / Sync Modal -->
+  <div class="modal-backdrop hidden" id="syncModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>📦 打卡与难句进度备份/同步</h3>
+        <button class="icon-btn" id="closeSyncModalBtn">✕</button>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-secondary);margin-bottom:10px;">
+        手机上的打卡进度会自动保存在本机应用内。如果想在手机与电脑之间互传打卡记录，可复制下方进度码粘贴导入：
+      </p>
+      <textarea id="syncJsonArea" rows="5" style="width:100%;font-size:11.5px;padding:8px;border-radius:8px;border:1px solid var(--border-subtle);background:var(--bg-app);color:var(--text-main);"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px;">
+        <button class="btn-ghost" id="copySyncBtn">📋 复制当前进度码</button>
+        <button class="play-btn" id="importSyncBtn" style="padding:6px 14px;font-size:12.5px;">📥 导入并覆盖</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Keyboard Shortcuts Modal -->
+  <div class="modal-backdrop hidden" id="shortcutsModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>⌨️ 背诵高效快捷键</h3>
+        <button class="icon-btn" id="closeModalBtn">✕</button>
+      </div>
+      <ul class="shortcut-list">
+        <li><kbd>Space</kbd> <span>播放 / 暂停同步音频</span></li>
+        <li><kbd>←</kbd> / <kbd>→</kbd> <span>跳至上一句 / 下一句并同步发声</span></li>
+        <li><kbd>R</kbd> <span>重播当前句（从本句开头重听）</span></li>
+        <li><kbd>L</kbd> <span>一键切换「单句无限循环 / 顺序连播」</span></li>
+        <li><kbd>Tab</kbd> <span>在挖空/首字母/全遮挡模式下，临时显影当前句核对</span></li>
+        <li><kbd>S</kbd> <span>将当前句收藏/取消为「★ 重点难句」</span></li>
+        <li><kbd>M</kbd> <span>将当前句标记为「✓ 已熟背」</span></li>
+        <li><kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> <kbd>4</kbd> <span>快速切换四阶背诵模式</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <audio id="audioEl" preload="auto"></audio>
+  <script src="./app.js"></script>
+</body>
+</html>
