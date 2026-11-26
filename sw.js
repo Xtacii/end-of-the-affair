@@ -1,6 +1,5 @@
-const SHELL_CACHE = "eota-shell-v2";
+const SHELL_CACHE = "eota-shell-v3";
 const SHELL_ASSETS = [
-  "./",
   "./index.html",
   "./styles.css",
   "./app.js",
@@ -28,14 +27,26 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
-
-  // Never intercept Range requests (MP3 seeking) so native browser streaming works cleanly
   if (req.headers.has("range")) return;
 
   const url = new URL(req.url);
   if (url.pathname.includes("/api/")) return;
 
-  // Network-first with offline cache fallback for app shell & JSON data
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req.url)
+        .then((res) => {
+          if (res && res.status === 200) {
+            const clone = res.clone();
+            caches.open(SHELL_CACHE).then((cache) => cache.put("./index.html", clone));
+          }
+          return res;
+        })
+        .catch(() => caches.match("./index.html"))
+    );
+    return;
+  }
+
   event.respondWith(
     fetch(req)
       .then((res) => {

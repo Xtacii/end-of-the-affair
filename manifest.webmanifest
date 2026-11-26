@@ -1,8 +1,9 @@
 {
+  "id": "./index.html",
   "name": "恋情的终结 · Cornélie 专属全书背诵台",
   "short_name": "恋情的终结",
   "description": "Graham Greene《The End of the Affair》184天全书背诵与美式同步音频系统",
-  "start_url": "./",
+  "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f6f2ea",
